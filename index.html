@@ -9,8 +9,196 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* ── PANTALLA DE ACCESO ────────────────────────────────────── */
+        #access-gate {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0d1117 0%, #1a2236 60%, #0d1117 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            font-family: 'Inter', sans-serif;
+        }
+        #access-gate.hidden { display: none; }
+        .gate-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .gate-t {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .gate-t-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .gate-t-h { width: 36px; height: 13px; background: #ef3e42; }
+        .gate-t-v { width: 13px; height: 28px; background: #ef3e42; }
+        .gate-company { font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+        .gate-tag { font-size: 0.7rem; color: #666; margin-top: 3px; }
+        .gate-card {
+            background: rgba(30,34,38,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 40px 48px;
+            width: 380px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+        }
+        .gate-card h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f0f0f0;
+            margin-bottom: 6px;
+        }
+        .gate-card p {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 28px;
+        }
+        .gate-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9aa0a6;
+            margin-bottom: 8px;
+        }
+        .gate-input {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            color: #f0f0f0;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+        .gate-input:focus {
+            border-color: #fbbb21;
+            box-shadow: 0 0 0 3px rgba(251,187,33,0.15);
+        }
+        .gate-input.error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231,76,60,0.15);
+            animation: shake 0.3s ease;
+        }
+        @keyframes shake {
+            0%,100%{transform:translateX(0)}
+            25%{transform:translateX(-6px)}
+            75%{transform:translateX(6px)}
+        }
+        .gate-btn {
+            width: 100%;
+            background: #fbbb21;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .gate-btn:hover { background: #f0a800; }
+        .gate-btn:active { transform: scale(0.98); }
+        .gate-error {
+            font-size: 0.8rem;
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 18px;
+            font-weight: 500;
+        }
+        .gate-footer {
+            position: absolute;
+            bottom: 30px;
+            font-size: 0.7rem;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+    <script>
+        // ── CONFIGURACIÓN DE ACCESO ──────────────────────────────
+        // Cambia esta contraseña por la que desees
+        const ACCESS_PASSWORD = 'Tequendama2026';
+        const SESSION_KEY = 'fleet_sim_access';
+
+        function checkAccess() {
+            return sessionStorage.getItem(SESSION_KEY) === 'granted';
+        }
+        function grantAccess() {
+            sessionStorage.setItem(SESSION_KEY, 'granted');
+        }
+        // Verificar al cargar la página
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!checkAccess()) {
+                document.getElementById('access-gate').classList.remove('hidden');
+                document.getElementById('dashboard-body').style.visibility = 'hidden';
+            }
+        });
+        function submitPassword() {
+            const input = document.getElementById('gate-password');
+            const errorEl = document.getElementById('gate-error');
+            if (input.value === ACCESS_PASSWORD) {
+                grantAccess();
+                document.getElementById('access-gate').classList.add('hidden');
+                document.getElementById('dashboard-body').style.visibility = 'visible';
+                input.value = '';
+                errorEl.textContent = '';
+            } else {
+                input.classList.add('error');
+                errorEl.textContent = 'Contraseña incorrecta. Por favor intente de nuevo.';
+                setTimeout(() => input.classList.remove('error'), 600);
+                input.value = '';
+                input.focus();
+            }
+        }
+    </script>
 </head>
 <body>
+    <!-- ── PANTALLA DE ACCESO ─────────────────────────────────── -->
+    <div id="access-gate" class="hidden">
+        <div class="gate-logo">
+            <div class="gate-t">
+                <div class="gate-t-col" style="align-items:flex-end;"><div class="gate-t-h"></div><div class="gate-t-v"></div></div>
+                <div class="gate-t-col" style="align-items:flex-start;"><div class="gate-t-h"></div><div class="gate-t-v"></div></div>
+            </div>
+            <div class="gate-company">Tequendama</div>
+            <div class="gate-tag">Juntos construimos una Colombia mejor</div>
+        </div>
+
+        <div class="gate-card">
+            <h2>Área Restringida</h2>
+            <p>Ingresa la contraseña de acceso para continuar al simulador.</p>
+            <div class="gate-label">Contraseña</div>
+            <input
+                type="password"
+                id="gate-password"
+                class="gate-input"
+                placeholder="••••••••••••••"
+                onkeydown="if(event.key==='Enter') submitPassword()"
+                autocomplete="off"
+            />
+            <button class="gate-btn" onclick="submitPassword()">Ingresar al Simulador →</button>
+            <div id="gate-error" class="gate-error"></div>
+        </div>
+
+        <div class="gate-footer">SIMULADOR CAPEX/OPEX · CAT 966H · Documento Confidencial</div>
+    </div>
+
+    <!-- ── CONTENIDO PRINCIPAL ─────────────────────────────────── -->
+    <div id="dashboard-body">
     <div class="dashboard-container">
         <!-- Header -->
         <header class="header">
@@ -311,7 +499,8 @@
         </div>
     </div>
 
-    <script src="script.js?v=2.3"></script>
+    <script src="script.js?v=2.4"></script>
     <script src="export_pdf.js?v=1.2"></script>
+    </div><!-- /dashboard-body -->
 </body>
 </html>
