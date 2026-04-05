@@ -1,0 +1,553 @@
+:root {
+    --bg-dark: #121415;
+    --bg-panel: rgba(30, 34, 38, 0.7);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --cat-yellow: #fbbb21;
+    --cat-yellow-dim: rgba(251, 187, 33, 0.2);
+    --text-main: #f0f0f0;
+    --text-muted: #9aa0a6;
+    --accent-blue: #4a90e2;
+    --accent-red: #e74c3c;
+    --accent-green: #2ecc71;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(251, 187, 33, 0.05), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.02), transparent 25%);
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 10px 20px;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: var(--bg-panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    background: var(--cat-yellow);
+    color: #000;
+    font-weight: 800;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.2rem;
+}
+
+h1 {
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+h1 .highlight {
+    color: var(--cat-yellow);
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Layout */
+.main-content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Controls Panel */
+.controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.control-group h3 {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-row {
+    margin-bottom: 12px;
+}
+
+.input-row label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.input-row small {
+    display: block;
+    margin-top: 5px;
+    color: #777;
+    font-size: 0.75rem;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.val-display {
+    min-width: 70px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--cat-yellow);
+    background: var(--cat-yellow-dim);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Custom Range Input */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--cat-yellow);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 10px rgba(251, 187, 33, 0.5);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+
+/* Scenario Inputs */
+.scenario-tweak {
+    background: rgba(0,0,0,0.2);
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--cat-yellow);
+}
+.scenario-tweak h4 {
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: #ddd;
+}
+.tweak-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.tweak-row label {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+.tweak-row input[type=number] {
+    width: 100px;
+    background: #111;
+    border: 1px solid var(--border-color);
+    color: #fff;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-family: inherit;
+    text-align: right;
+}
+.tweak-row input[type=number]:focus {
+    outline: none;
+    border-color: var(--cat-yellow);
+}
+
+/* Visuals Panel */
+.visuals-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.card-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.card-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.winner-card {
+    border-left: 4px solid var(--accent-green);
+    background: linear-gradient(90deg, rgba(46,204,113,0.1) 0%, rgba(30,34,38,0.7) 100%);
+}
+
+.winner-card .card-value {
+    color: var(--accent-green);
+}
+
+.formula-val {
+    color: #fff;
+}
+
+.card-sub {
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+/* Charts */
+.charts-container {
+    padding: 25px;
+}
+
+.charts-container h3 {
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+.chart-desc {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+}
+.bar-chart-wrap {
+    height: 300px;
+}
+.line-chart-wrap {
+    height: 400px;
+}
+
+/* Modal Base de Calculo */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-content {
+    background: var(--bg-dark);
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    padding: 30px;
+}
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.close-btn:hover { color: #fff; }
+.modal-content h2 { margin-bottom: 20px; color: var(--cat-yellow); font-size: 1.4rem; }
+.modal-content p { margin-bottom: 15px; line-height: 1.5; color: #ddd; font-size: 0.95rem; }
+.modal-content ul { margin-left: 20px; margin-bottom: 20px; color: #ccc; }
+.modal-content li { margin-bottom: 12px; line-height: 1.4; font-size: 0.9rem;}
+.modal-content code { background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; font-family: monospace; color: var(--accent-green); display: inline-block; margin-top: 5px; border: 1px solid rgba(255,255,255,0.1); }
+
+.btn-info {
+    background: transparent;
+    border: 1px solid var(--cat-yellow);
+    color: var(--cat-yellow);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-left: 20px;
+}
+.btn-info:hover {
+    background: var(--cat-yellow);
+    color: #000;
+}
+
+.active-btn {
+    border-color: var(--accent-green) !important;
+    color: var(--accent-green) !important;
+    background: rgba(46, 204, 113, 0.1);
+}
+.active-btn:hover {
+    background: var(--accent-green) !important;
+    color: #fff !important;
+}
+.btn-micro {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-micro:hover {
+    background: var(--accent-green);
+    color: #000;
+}
+.verified-badge {
+    color: var(--accent-green) !important;
+    font-weight: 600;
+    margin-top: 10px !important;
+    display: inline-block;
+}
+.market-select {
+    background: #111;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 3px 5px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    outline: none;
+    max-width: 140px;
+    cursor: pointer;
+}
+.market-select:focus {
+    border-color: var(--accent-green);
+}
+.salvage-row label { color: var(--accent-green) !important; font-weight: bold;}
+.salvage-row input { border-color: rgba(46, 204, 113, 0.5) !important; color: var(--accent-green) !important; background: rgba(46, 204, 113, 0.05) !important;}
+.salvage-note { color: #aaa; font-size: 0.65rem; display: block; margin-top: 8px; line-height: 1.1; }
+.hist-modal-content {
+    max-width: 900px;
+}
+.hist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 15px;
+}
+.hist-header h2 { margin-bottom: 0 !important; color: #fff;}
+.hist-total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ccc;
+}
+.highlight-green {
+    color: var(--accent-green);
+    font-size: 1.4rem;
+}
+.hist-body {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 30px;
+    align-items: center;
+}
+.hist-chart-wrap {
+    height: 350px;
+    position: relative;
+}
+.top-list {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 3px solid var(--cat-yellow);
+}
+.top-list h4 { margin-bottom: 15px; color: #fff; font-size: 1rem;}
+.top-list ul { list-style: none !important; margin-left: 0 !important; }
+.top-list li { display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; margin-bottom: 12px; color: #ddd;}
+.top-list li div { display: flex; align-items: center; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 10px; }
+
+/* Styling the data tables inside modals */
+.table-container {
+    overflow-x: auto;
+    margin-top: 15px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.data-table th, .data-table td {
+    padding: 10px 15px;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.data-table th:first-child, .data-table td:first-child {
+    text-align: left;
+}
+.data-table th {
+    background-color: rgba(255,255,255,0.05);
+    color: #f1c40f;
+    font-weight: 600;
+}
+.data-table tbody tr:hover {
+    background-color: rgba(255,255,255,0.06);
+}
+
+/* =============================================
+   ESTILOS DE IMPRESIÓN / PDF EJECUTIVO
+   ============================================= */
+@media print {
+    /* Configuración de página */
+    @page {
+        size: A3 landscape;
+        margin: 10mm 12mm;
+    }
+
+    /* Forzar fondo oscuro al imprimir */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body {
+        background-color: #121415 !important;
+        background-image: none !important;
+        color: #f0f0f0 !important;
+    }
+
+    .dashboard-container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    /* Ocultar elementos que no van al ejecutivo */
+    #btnBaseCalculo,
+    #btnHistorico,
+    #btnInteligenciaMercado,
+    #btnExportPDF,
+    #btnLoadBudget,
+    .modal,
+    .modal.active {
+        display: none !important;
+    }
+
+    /* Ajuste de header para impresión */
+    .header {
+        margin-bottom: 8mm;
+        padding-bottom: 6mm;
+    }
+
+    /* Forzar layout de 2 columnas */
+    .main-content {
+        display: grid !important;
+        grid-template-columns: 280px 1fr !important;
+        gap: 8mm !important;
+    }
+
+    /* Paneles */
+    .glass-panel {
+        background: rgba(30, 34, 38, 0.95) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Gráficos: asegurar altura fija */
+    .chart-container {
+        height: 240px !important;
+    }
+
+    /* Asegurar que el canvas de los gráficos sea visible */
+    canvas {
+        max-width: 100% !important;
+    }
+
+    /* Pie de página automático */
+    .dashboard-container::after {
+        content: 'Documento Confidencial | Tequendama S.A. | Simulador TCO CAT 966H — ' attr(data-date);
+        display: block;
+        margin-top: 8mm;
+        font-size: 8pt;
+        color: #666;
+        text-align: center;
+        border-top: 1px solid #333;
+        padding-top: 4mm;
+    }
+}
+

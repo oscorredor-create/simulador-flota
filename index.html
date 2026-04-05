@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Decisión de Flota | CAT 966H</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-area">
+                <div class="tequendama-logo" style="display:flex; flex-direction:column; align-items:center; margin-right: 30px;">
+                    <!-- Icono T -->
+                    <div style="display:flex; gap: 5px; margin-bottom: 6px;">
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <div style="width: 32px; height: 12px; background:#ef3e42;"></div>
+                            <div style="width: 12px; height: 26px; background:#ef3e42;"></div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                            <div style="width: 32px; height: 12px; background:#ef3e42;"></div>
+                            <div style="width: 12px; height: 26px; background:#ef3e42;"></div>
+                        </div>
+                    </div>
+                    <!-- Texto -->
+                    <div style="font-size: 1.6rem; font-weight: 800; color: #ffffff; line-height: 1; letter-spacing: -0.5px;">Tequendama</div>
+                    <div style="font-size: 0.6rem; font-weight: 400; color: #aaaaaa; margin-top: 3px; letter-spacing: 0.2px;">Juntos construimos una Colombia mejor</div>
+                </div>
+                <h1>SIMULADOR CAPEX/OPEX <span class="highlight">CAT 966H</span></h1>
+                <button id="btnBaseCalculo" class="btn-info">❔ Ver Base de Cálculo</button>
+                <button id="btnHistorico" class="btn-info active-btn">📊 Ver Histórico Real</button>
+                <button id="btnInteligenciaMercado" class="btn-info" style="background: rgba(74, 144, 226, 0.1); border-color: #4a90e2; color: #4a90e2; margin-left:10px;" onclick="openMarketDbModal()">🛒 Inteligencia de Mercado</button>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                <button id="btnExportPDF" class="btn-info" style="background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; font-weight:bold;" onclick="exportToPDF()">📥 Exportar a PDF Ejecutivo</button>
+                <p class="subtitle" style="text-align:right;">Análisis de ciclo de vida (5 Años) - Compra vs. Renta vs. Overhaul</p>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar Controls -->
+            <aside class="controls-panel">
+                <div class="control-group glass-panel">
+                    <h3>
+                        <div style="display:flex; align-items:center; justify-content:space-between; width: 100%;">
+                            <span><span class="icon">⚙️</span> Variables Operativas</span>
+                            <button id="btnLoadBudget" class="btn-micro" title="Aplicar Presupuesto 2026">📋 Cargar Presupuesto</button>
+                        </div>
+                    </h3>
+                    
+                    <div class="input-row">
+                        <label>Uso Anual Estimado (Horas)</label>
+                        <div class="slider-container">
+                            <input type="range" id="annualHours" min="500" max="6000" step="1" value="2989">
+                            <span class="val-display" id="valHours">2,989 h</span>
+                        </div>
+                    </div>
+
+                    <div class="input-row">
+                        <label>Consumo de Combustible (Gal/hr)</label>
+                        <div class="slider-container">
+                            <input type="range" id="fuelConsumption" min="2.0" max="7.0" step="0.1" value="4.2">
+                            <span class="val-display" id="valFuel">4.2 Gal/h</span>
+                        </div>
+                        <small>Ref: 966H consume 3.5-4.5 Gal/h en carga media.</small>
+                    </div>
+
+                    <div class="input-row">
+                        <label>Costo Diésel (COP/Galón)</label>
+                        <div class="slider-container">
+                            <input type="range" id="fuelPrice" min="6000" max="15000" step="1" value="9892">
+                            <span class="val-display" id="valFuelPrice">COP 9,892</span>
+                        </div>
+                        <small id="trmNote">(Convertido a USD internamente. Obteniendo TRM...)</small>
+                    </div>
+                </div>
+
+                <div class="control-group glass-panel scenarios-inputs">
+                    <h3><span class="icon">📈</span> Escenarios a 5 Años</h3>
+                    
+                    <!-- Opción A: Nuevo -->
+                    <div class="scenario-tweak" id="cardNew">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0;">A. Comprar Nuevo</h4>
+                            <select id="newModelSelect" class="market-select">
+                            </select>
+                        </div>
+                        <div class="tweak-row">
+                            <label style="display:flex; align-items:center;">
+                                CAPEX ($)
+                                <select id="capexOptSelect" class="market-select" style="margin-left:5px; max-width:55px;">
+                                    <option value="1">Op.1</option>
+                                    <option value="2">Op.2</option>
+                                </select>
+                            </label>
+                            <input type="number" id="capexNew" value="380000">
+                        </div>
+                        <div class="tweak-row">
+                            <label>Mant. / hora ($)</label>
+                            <input type="number" id="opexNew" value="8.0" step="0.1">
+                        </div>
+                        <div class="tweak-row salvage-row">
+                            <label>Reventa Año 5 ($)</label>
+                            <input type="number" id="resaleNew" value="180000">
+                        </div>
+                        <div class="tweak-row" style="margin-top:5px;">
+                            <label style="color:#3498db!important;">Cuota Inicial (%)</label>
+                            <input type="number" id="dpNew" value="30" step="5">
+                        </div>
+                        <div class="tweak-row" style="margin-top:5px;">
+                            <label style="color:#e74c3c!important;">Tasa Crédito Anual (%)</label>
+                            <input type="number" id="intNew" value="9.0" step="0.5">
+                        </div>
+                        <small class="salvage-note">Net TCO descuenta salvamento.</small>
+                    </div>
+
+                    <!-- Opción B: Repotenciar -->
+                    <div class="scenario-tweak">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0;">B. Repotenciar</h4>
+                            <select id="repModelSelect" class="market-select">
+                            </select>
+                        </div>
+                        <div class="tweak-row">
+                            <label>CAPEX Overhaul ($)</label>
+                            <input type="number" id="capexRep" value="158300">
+                        </div>
+                        <div class="tweak-row salvage-row" style="margin-top:5px;">
+                            <label style="color:#f39c12!important;">Alquiler Sustituto ($/2m)</label>
+                            <input type="number" id="rentWaitRep" value="29063" style="border-color:rgba(243,156,18,0.5)!important; color:#f39c12!important; background:rgba(243,156,18,0.05)!important;" readonly>
+                        </div>
+                        <div class="tweak-row" style="margin-top:10px;">
+                            <label>Mant. / hora ($)</label>
+                            <input type="number" id="opexRep" value="17.25" step="0.01">
+                        </div>
+                        <div class="tweak-row" style="margin-top:5px;">
+                            <label style="color:#e74c3c!important;">Tasa Crédito Anual (%)</label>
+                            <input type="number" id="intRep" value="9.0" step="0.5">
+                        </div>
+                        <small class="verified-badge">✓ Histórico Verificado (2.24B COP)</small>
+                    </div>
+
+                    <!-- Opción C: Alquiler -->
+                    <div class="scenario-tweak">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0;">C. Alquiler / Renting</h4>
+                            <select id="rentModelSelect" class="market-select">
+                            </select>
+                        </div>
+                        <div class="tweak-row">
+                            <label>Renta Mensual ($)</label>
+                            <input type="number" id="monthlyRent" value="14922">
+                        </div>
+                        <div class="tweak-row salvage-row" style="margin-top:5px;">
+                            <label style="color:#e74c3c!important;">Riesgo Downtime ($/año)</label>
+                            <input type="number" id="downtimeRent" value="40875" style="border-color:rgba(231,76,60,0.5)!important; color:#e74c3c!important; background:rgba(231,76,60,0.05)!important;" readonly>
+                        </div>
+                        <div class="tweak-row" style="margin-top:5px;">
+                            <label style="color:#e74c3c!important;">Incr. Tarifa Anual (%)</label>
+                            <input type="number" id="infRent" value="4.0" step="0.5">
+                        </div>
+                        <small class="salvage-note">Mantenimiento incluido en cuota renta.</small>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Dashboard Visuals -->
+            <section class="visuals-panel">
+                
+                <div class="summary-cards">
+                    <div class="card winner-card glass-panel" id="verdictCard">
+                        <div class="card-title">Opción Recomendada (Menor TCO)</div>
+                        <div class="card-value" id="winnerName">Calculando...</div>
+                        <div class="card-sub" id="winnerSavings">...</div>
+                    </div>
+
+                    <div class="card glass-panel">
+                        <div class="card-title">Gasto Total Combustible (5 Años)</div>
+                        <div class="card-value formula-val" id="totalFuelCost">$0</div>
+                    </div>
+
+                    <div class="card glass-panel" id="trmCard">
+                        <div class="card-title">TCO Recomendado (En Pesos COP)</div>
+                        <div class="card-value formula-val" id="tcoCopValue">Cargando...</div>
+                        <div class="card-sub" id="trmDisplay">TRM del día: Obteniendo...</div>
+                    </div>
+                </div>
+
+                <div class="charts-container glass-panel">
+                    <h3>Desglose de Costo Total de Propiedad (TCO a 5 Años)</h3>
+                    <div class="chart-wrapper bar-chart-wrap">
+                        <canvas id="tcoChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-container glass-panel">
+                    <h3>Proyección Acumulada (Flujo de Caja)</h3>
+                    <p class="chart-desc">Punto de cruce: Indica el año en que la opción de menor CAPEX deja de ser rentable frente al OPEX.</p>
+                    <div class="chart-wrapper line-chart-wrap">
+                        <canvas id="cashflowChart"></canvas>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </div>
+    <!-- Modal Base de Cálculo -->
+    <div id="calcModal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <span id="closeModal" class="close-btn">&times;</span>
+            <h2>Base de Cálculo del Modelo TCO</h2>
+            <p>El simulador calcula el <strong>Costo Total de Propiedad (TCO)</strong> a 5 años utilizando las siguientes fórmulas simplificadas:</p>
+            <ul>
+                <li><strong>Opción Comprar Nuevo:</strong> <br><code>Net CAPEX (Inversión-Reventa) + OPEX(Mant+Fuel) + Riesgo Indisponibilidad</code></li>
+                <li><strong>Opción Repotenciar:</strong> <br><code>(CAPEX Overhaul + Renta Sustituta Mensual) + OPEX(Mant+Fuel) + Riesgo Indisponibilidad</code></li>
+                <li><strong>Opción Alquiler:</strong> <br><code>(Renta * 12 * 5) + Costo Combustible + Riesgo Indisponibilidad</code></li>
+            </ul>
+            <p><strong>Flujo de Caja (Proyección):</strong> El gráfico lineal muestra la suma de la inversión inicial (Año 0) más el gasto operativo que se inyecta acumulativamente año tras año.</p>
+        </div>
+    </div>
+    
+    <!-- Modal Histórico Real -->
+    <div id="histModal" class="modal-overlay">
+        <div class="modal-content glass-panel hist-modal-content">
+            <span id="closeHistModal" class="close-btn">&times;</span>
+            <div class="hist-header">
+                <h2>Inversión Histórica Real (2013-2026)</h2>
+                <div class="hist-total">Total General: <span class="highlight-green">$2,243,043,910 COP</span></div>
+            </div>
+            
+            <div class="hist-body">
+                <div class="hist-chart-wrap">
+                    <canvas id="historicalChart"></canvas>
+                </div>
+                <div class="hist-text">
+                    <p>Tras analizar el <strong>reporte pivote (13 años)</strong> de este equipo, el promedio operativo arroja <strong>~172.5 Millones COP/año</strong> en OPEX de Mantenimiento duro.</p>
+                    <p>Asumiendo una TRM base (4,000 COP) y uso estándar (2,500h/año), esta cifra real se traduce matemáticamente en <strong>$17.25 USD por hora</strong>. Este valor exacto ha sido configurado por defecto para evitar sub/sobre estimaciones en la proyección "Repotenciado".</p>
+                    <div class="top-list">
+                        <h4>Top Categorías de Gasto</h4>
+                        <ul>
+                            <li><div><span class="dot" style="background:#fbbb21"></span>Motor y Equipo T</div><strong>$1,761M COP</strong> (78%)</li>
+                            <li><div><span class="dot" style="background:#e74c3c"></span>Llantas Nuevas</div><strong>$208M COP</strong> (9%)</li>
+                            <li><div><span class="dot" style="background:#3498db"></span>Lubricantes/Gasoil</div><strong>$52M COP</strong> (2%)</li>
+                            <li><div><span class="dot" style="background:#9b59b6"></span>Otros Sistemas (Eje/Trans.)</div><strong>$222M COP</strong> (11%)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Inteligencia de Mercado -->
+    <div id="marketDbModal" class="modal-overlay">
+        <div class="modal-content glass-panel hist-modal-content" style="max-width: 950px; padding: 25px;">
+            <span class="close-btn" onclick="closeMarketDbModal()">&times;</span>
+            <div class="hist-header">
+                <h2>🛒 Catálogo de Inteligencia de Mercado (Base de Datos Viva)</h2>
+                <div class="hist-total" style="font-size:0.9rem; font-weight:normal;">Valores referenciales en <span class="highlight-green">USD</span></div>
+            </div>
+            
+            <h3 style="color:#ffffff; margin-top:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:1.1rem;">A. Adquisición de Activos Nuevos (Mercado CAEX)</h3>
+            <div class="table-container">
+                <table class="data-table" id="dbCapexTable">
+                    <thead>
+                        <tr>
+                            <th>Marca/Modelo</th>
+                            <th>Capex Opción 1 ($)</th>
+                            <th>Capex Opción 2 ($)</th>
+                            <th>Salvamento Año 5 ($)</th>
+                            <th>Opex Mantenimiento ($/h)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <h3 style="color:#ffffff; margin-top:25px; border-bottom:1px solid #333; padding-bottom:5px; font-size:1.1rem;">C. Mercado de Alquiler / Renting</h3>
+            <div class="table-container">
+                <table class="data-table" id="dbRentTable">
+                    <thead>
+                        <tr>
+                            <th>Marca/Modelo</th>
+                            <th>Canon Mensual Renta ($)</th>
+                            <th>Penalidad por Indisponibilidad ($/año)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <h3 style="color:#ffffff; margin-top:25px; border-bottom:1px solid #333; padding-bottom:5px; font-size:1.1rem;">B. Soluciones de Repotenciación (Overhaul 966H)</h3>
+            <div class="table-container">
+                <table class="data-table" id="dbRepowerTable">
+                    <thead>
+                        <tr>
+                            <th>Opción</th>
+                            <th>CAPEX Base Reconstrucción ($)</th>
+                            <th>Renta Contingencia Sustituta ($/2m)</th>
+                            <th>Opex Mantenimiento ($/h)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div style="margin-top:20px; text-align:center;"><small>Esta metadata es consumida por el motor matemático en O(1) vía script.js.</small></div>
+        </div>
+    </div>
+
+    <script src="script.js?v=2.3"></script>
+    <script src="export_pdf.js?v=1.2"></script>
+</body>
+</html>
